@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Content Trend Direction: A Machine Learning Study</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+      color: #222;
+      background: #fafafa;
+    }
+
+    header {
+      padding: 50px 0 30px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    h1 {
+      font-size: 42px;
+      line-height: 1.15;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      margin-top: 55px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin-top: 30px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 18px;
+    }
+
+    .abstract {
+      background: white;
+      padding: 25px;
+      border-left: 4px solid #222;
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    .note {
+      background: #f3f3f3;
+      padding: 18px;
+      margin: 25px 0;
+    }
+
+    img {
+      max-width: 100%;
+      margin: 20px 0;
+      border: 1px solid #ddd;
+    }
+
+    footer {
+      margin-top: 70px;
+      padding-top: 30px;
+      border-top: 1px solid #ddd;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Content Trend Direction: A Machine Learning Study</h1>
+
+  <p class="subtitle">
+    Measuring directional content-performance signals using machine learning
+  </p>
+
+  <p>
+    <strong>Author:</strong> Harshini Chebrolu
+  </p>
+
+  <p>
+    FlyRank ML Internship · Machine Learning Track
+  </p>
+</header>
+
+
+<section class="abstract">
+
+<h2>Abstract</h2>
+
+<p>
+This study asks whether observable content and recent search-performance signals
+can be used to measure the direction of content performance as down, stable, or up.
+A multiclass Logistic Regression model was trained using non-identifier,
+non-outcome predictive features and evaluated using both random stratified and
+client-grouped validation. The random stratified split produced an accuracy of
+0.7570 and macro F1 of 0.6644, while the stricter client-grouped split produced
+an accuracy of 0.6568 and macro F1 of 0.5097. The difference indicates that
+validation design materially changes the measured performance when observations
+from the same client may be related. The resulting signals are used as
+decision-support inputs for content review prioritization rather than as
+guarantees of future search performance.
+</p>
+
+</section>
+
+
+<h2>1. Introduction / Problem Statement</h2>
+
+<p>
+Content teams often need to decide which pages deserve earlier review.
+A large content dataset can contain measurable signals related to recent
+search performance, engagement, CTR, impressions, clicks, position, and
+content characteristics.
+</p>
+
+<p>
+This study investigates whether these observable signals contain useful
+information about the observed direction of content performance.
+</p>
+
+<p>
+The goal is not to predict a search engine's behavior. Instead, the analysis
+provides a measurable and reproducible framework for prioritizing content
+items for human review.
+</p>
+
+
+<h2>2. Data</h2>
+
+<p>
+The analysis uses the anonymized FlyRank ML Internship dataset used throughout
+the modeling workflow.
+</p>
+
+<p>
+The working dataset contains <strong>30,000 records and 44 columns</strong>.
+</p>
+
+<p>
+The target variable is <code>trend_direction</code>, representing the observed
+trend classes down, stable, and up.
+</p>
+
+<p>
+Identifier and outcome-related fields were excluded from predictive features,
+including the target, trend percentage, action-related fields, client and
+content identifiers, and URL fields.
+</p>
+
+<p>
+Client identifiers were retained only for grouped validation and were not used
+as predictive features.
+</p>
+
+<div class="note">
+<strong>Public-safety note:</strong>
+No private client names, private queries, or private URLs are presented in
+this research artifact.
+</div>
+
+
+<h2>3. Methodology</h2>
+
+<h3>Features</h3>
+
+<p>
+The model uses available non-identifier and non-outcome fields representing
+observable content and search-performance signals.
+</p>
+
+<h3>Preprocessing</h3>
+
+<p>
+Numeric features are median-imputed and standardized. Categorical features
+are imputed using the most frequent value and one-hot encoded.
+</p>
+
+<h3>Model</h3>
+
+<p>
+The selected model is multiclass Logistic Regression. It provides a simple
+and interpretable model for measuring whether the available signals contain
+information about the observed trend classes.
+</p>
+
+<h3>Validation</h3>
+
+<p>
+Two validation designs were examined:
+</p>
+
+<ol>
+  <li>Random stratified 80/20 validation.</li>
+  <li>Client-grouped 80/20 validation.</li>
+</ol>
+
+<p>
+For the grouped validation, observations from the same client were kept in
+only one partition. The grouped split contained 25 training clients and
+7 test clients, with zero client overlap.
+</p>
+
+<h3>Leakage checks</h3>
+
+<p>
+The target, outcome-related fields, and identifiers were excluded from the
+predictive feature set. Client ID was used only to construct the grouped
+validation split.
+</p>
+
+
+<h2>4. Results</h2>
+
+<p>
+The measured results show that validation design materially affects reported
+model performance.
+</p>
+
+<table>
+<thead>
+<tr>
+  <th>Validation design</th>
+  <th>Accuracy</th>
+  <th>Macro F1</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+  <td>Random stratified split</td>
+  <td>0.7570</td>
+  <td>0.6644</td>
+</tr>
+
+<tr>
+  <td>Client-grouped split</td>
+  <td>0.6568</td>
+  <td>0.5097</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+The random split produced higher measured performance. Under client-grouped
+validation, accuracy decreased to 0.6568 and macro F1 decreased to 0.5097.
+</p>
+
+<p>
+This difference is important because observations from the same client may
+share characteristics. The grouped validation therefore provides a stricter
+stress test for performance on clients not represented in training.
+</p>
+
+
+<h2>5. Limitations & Honest Framing</h2>
+
+<ul>
+  <li>
+    The dataset represents the evaluated internship dataset and may not
+    represent every future client or content environment.
+  </li>
+
+  <li>
+    The model measures association with the observed trend label and does
+    not establish causality.
+  </li>
+
+  <li>
+    Performance changes substantially between random and client-grouped
+    validation.
+  </li>
+
+  <li>
+    The model does not predict or guarantee search-engine rankings or traffic.
+  </li>
+
+  <li>
+    Recommendations are decision-support outputs for human review, not
+    guaranteed interventions.
+  </li>
+
+  <li>
+    Factors not represented in the dataset cannot be evaluated by this study.
+  </li>
+</ul>
+
+
+<h2>6. Ranked Recommendations</h2>
+
+<h3>1. Prioritize negative observed trends for review</h3>
+
+<p>
+Items showing negative observed trends can receive earlier human review
+because they contain measurable signals of recent deterioration.
+</p>
+
+<h3>2. Review CTR-related issues</h3>
+
+<p>
+Items with CTR-related signals can be considered for review of search-result
+presentation, title clarity, and alignment with search intent.
+</p>
+
+<h3>3. Consider content refresh for stronger deterioration signals</h3>
+
+<p>
+Items showing stronger negative signals can be considered for content-refresh
+review. This does not establish that refreshing a page will improve future
+performance.
+</p>
+
+<h3>4. Monitor items without a strong intervention signal</h3>
+
+<p>
+Items without strong deterioration or CTR signals can remain in a monitoring
+queue for subsequent observation.
+</p>
+
+
+<table>
+<thead>
+<tr>
+  <th>Recommendation</th>
+  <th>Observed count</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+  <td>MONITOR</td>
+  <td>13,738</td>
+</tr>
+
+<tr>
+  <td>CTR_FIX</td>
+  <td>11,376</td>
+</tr>
+
+<tr>
+  <td>REFRESH</td>
+  <td>4,886</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>7. Artifacts</h2>
+
+<p>
+The accompanying notebook generates quantitative artifacts for validation
+comparison and recommendation distribution.
+</p>
+
+<img src="../outputs/validation_comparison.png"
+     alt="Validation comparison chart">
+
+<img src="../outputs/recommendation_distribution.png"
+     alt="Recommendation distribution chart">
+
+
+<h2>8. Reproducibility</h2>
+
+<p>
+The analysis notebook and supporting work are available in the public
+repository.
+</p>
+
+<ul>
+  <li>
+    <a href="https://github.com/HarshiniChebrolu/Flyrank-ml-internship">
+      GitHub repository
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/HarshiniChebrolu/Flyrank-ml-internship/blob/main/work/notebooks/capstone.ipynb">
+      Capstone notebook
+    </a>
+  </li>
+</ul>
+
+<p>
+The notebook documents the research question, data handling, methodology,
+validation, results, limitations, recommendations, and artifacts.
+</p>
+
+
+<h2>9. Acknowledgments & Data Credit</h2>
+
+<p>
+Built on the
+<a href="https://flyrank.ai">
+FlyRank ML Internship dataset
+</a>.
+</p>
+
+<p>
+This project was completed as part of the FlyRank ML Internship program.
+</p>
+
+
+<footer>
+
+<p>
+<strong>Research framing:</strong>
+The findings presented here are measured observations from the evaluated
+dataset. They are intended for directional analysis and decision-support,
+not as guarantees of future search performance.
+</p>
+
+<p>
+© 2026 Harshini Chebrolu
+</p>
+
+</footer>
+
+</body>
+</html>
